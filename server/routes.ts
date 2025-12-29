@@ -1,16 +1,29 @@
+
 import type { Express } from "express";
-import { createServer, type Server } from "http";
+import type { Server } from "http";
 import { storage } from "./storage";
+import { api } from "@shared/routes";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // put application routes here
-  // prefix all routes with /api
+  
+  app.get(api.status.latest.path, async (_req, res) => {
+    const status = await storage.getLatestReading();
+    res.json(status);
+  });
 
-  // use storage to perform CRUD operations on the storage interface
-  // e.g. storage.insertUser(user) or storage.getUserByUsername(username)
+  app.get(api.status.history.path, async (_req, res) => {
+    const history = await storage.getHistory();
+    res.json(history);
+  });
+
+  app.post(api.status.sos.path, async (_req, res) => {
+    // In a real app, this would trigger SMS/Push notifications
+    console.log("SOS Alert Triggered!");
+    res.json({ sent: true });
+  });
 
   return httpServer;
 }

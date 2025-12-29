@@ -1,37 +1,67 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
 
-// modify the interface with any CRUD methods
-// you might need
+import { type DeviceReading, type InsertDeviceReading } from "@shared/schema";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  getLatestReading(): Promise<DeviceReading>;
+  getHistory(): Promise<{ time: string; heartRate: number }[]>;
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<string, User>;
+  private currentReading: DeviceReading;
 
   constructor() {
-    this.users = new Map();
+    this.currentReading = this.generateMockReading();
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  private generateMockReading(): DeviceReading {
+    const now = new Date();
+    // Simulate heart rate 60-100 normally, occasionally spike
+    const heartRate = 60 + Math.floor(Math.random() * 40);
+    
+    // SpO2 95-100%
+    const spo2 = 95 + Math.floor(Math.random() * 6);
+    
+    // Steps accumulating
+    const steps = 1500 + Math.floor(Math.random() * 500);
+    
+    // Temp 36-38C
+    const temperature = 36 + Math.random() * 2;
+    
+    // Fall detection (very rare mock)
+    const isFallen = Math.random() > 0.98; // 2% chance for demo purposes of alert state
+
+    return {
+      id: 1,
+      heartRate,
+      spo2,
+      steps,
+      temperature: Number(temperature.toFixed(1)),
+      isFallen,
+      batteryLevel: 85 - Math.floor(Math.random() * 5),
+      wifiConnected: Math.random() > 0.1,
+      bluetoothConnected: Math.random() > 0.1,
+      timestamp: now,
+    };
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+  async getLatestReading(): Promise<DeviceReading> {
+    // Regenerate on every fetch to simulate live updates
+    this.currentReading = this.generateMockReading();
+    return this.currentReading;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async getHistory(): Promise<{ time: string; heartRate: number }[]> {
+    // Generate 24h mock history
+    const history = [];
+    const now = new Date();
+    for (let i = 24; i >= 0; i--) {
+      const time = new Date(now.getTime() - i * 60 * 60 * 1000);
+      history.push({
+        time: time.toISOString(),
+        heartRate: 60 + Math.floor(Math.random() * 40),
+      });
+    }
+    return history;
   }
 }
 

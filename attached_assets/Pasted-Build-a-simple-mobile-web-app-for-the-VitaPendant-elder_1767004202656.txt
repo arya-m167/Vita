@@ -1,0 +1,17 @@
+Build a simple mobile web app for the VitaPendant elder safety pendant that displays real-time vital signs and monitoring data from the device. Use a clean, single-screen dashboard with large fonts, high-contrast colors for elderly users, and auto-refresh every 10 seconds—pull mock data simulating heart rate (60-100 bpm), SpO2 (95-100%), steps (daily count), body temperature (36-38°C), accelerometer-based fall status (safe/fallen), battery level (%), and WiFi/Bluetooth connection status.[1]
+
+## Core Features
+Include all VitaPendant requirements: real-time heart rate from MAX30102 PPG sensor, SpO2 from same, steps and fall detection (90% accuracy target, threshold algorithm on MPU6050 200Hz data) with 2s alert response, body temp from BMP280, 7-day battery autonomy indicator, emergency alert button that triggers caregiver notifications, and connection icons for WiFi/BT sync.  Show status as "Safe" (green) or "Alert!" (red flashing) for falls/vitals out of range (HR>100 or <60, SpO2<95, temp>38°C, fall detected). Add a prominent SOS button for manual emergency calls.[1]
+
+## Interface Layout
+- Top: Device status bar (battery %, WiFi/BT icons).
+- Center: Large gauges/cards for Heart Rate (bpm), SpO2 (%), Steps (today), Temp (°C), Fall Status.
+- Bottom: 24h trends graph, SOS button, refresh button.[1]
+
+## Tech Stack
+Use HTML/CSS/JS with Chart.js for trends, localStorage for mock data simulation (generate realistic fluctuating values), and responsive design for phone screens. Make it deployable to Replit or Vercel as a PWA—no backend needed, just frontend vibe prototype under HKD1000 BOM mindset. Ensure intuitive UX with minimal training, 5% false alarms via smoothed thresholds.[1]
+
+## Sample Prompt for Replit/Cursor
+"Create this exact VitaPendant app as described above in vanilla JS/HTML/CSS. Start with mock data generator for 10-min simulation loop."[1]
+
+[1](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/105698748/33413333-6525-4dec-9bfc-f4242f6c85eb/VitaPendant_Elder_Lanyard_Proposal.pdf)

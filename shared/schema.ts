@@ -13,6 +13,10 @@ export const deviceReadings = pgTable("device_readings", {
   batteryLevel: integer("battery_level").notNull(),
   wifiConnected: boolean("wifi_connected").default(true).notNull(),
   bluetoothConnected: boolean("bluetooth_connected").default(true).notNull(),
+  // Raw accelerometer data for SisFall logic simulation
+  accelX: real("accel_x").default(0).notNull(),
+  accelY: real("accel_y").default(0).notNull(),
+  accelZ: real("accel_z").default(0).notNull(),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
@@ -21,7 +25,6 @@ export const insertReadingSchema = createInsertSchema(deviceReadings).omit({ id:
 export type DeviceReading = typeof deviceReadings.$inferSelect;
 export type InsertDeviceReading = z.infer<typeof insertReadingSchema>;
 
-// For the graph
 export type HistoryPoint = {
   time: string;
   heartRate: number;

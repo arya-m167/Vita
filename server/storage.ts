@@ -8,27 +8,43 @@ export interface IStorage {
 
 export class MemStorage implements IStorage {
   private currentReading: DeviceReading;
+  // SisFall Thresholds (Gravity is ~1.0g normalized or ~9.8 m/s^2)
+  // High impact threshold (SVM > 2.5g) and orientation change
+  private FALL_THRESHOLD_SVM = 2.5; 
 
   constructor() {
     this.currentReading = this.generateMockReading();
   }
 
+  private calculateSVM(x: number, y: number, z: number): number {
+    return Math.sqrt(x * x + y * y + z * z);
+  }
+
   private generateMockReading(): DeviceReading {
     const now = new Date();
-    // Simulate heart rate 60-100 normally, occasionally spike
+    
+    // Simulate raw accelerometer values (in g-force)
+    // Normal ADL: subtle variations around 1g total magnitude
+    let accelX = (Math.random() - 0.5) * 0.2;
+    let accelY = 1.0 + (Math.random() - 0.5) * 0.2; // Gravity mainly on Y axis
+    let accelZ = (Math.random() - 0.5) * 0.2;
+
+    // Simulate a fall (High acceleration impact)
+    const simulateFallEvent = Math.random() > 0.95;
+    if (simulateFallEvent) {
+      accelX = (Math.random() - 0.5) * 4.0;
+      accelY = (Math.random() - 0.5) * 4.0;
+      accelZ = (Math.random() - 0.5) * 4.0;
+    }
+
+    const svm = this.calculateSVM(accelX, accelY, accelZ);
+    // SisFall Logic: Fall detected if Signal Vector Magnitude (SVM) exceeds threshold
+    const isFallen = svm > this.FALL_THRESHOLD_SVM;
+
     const heartRate = 60 + Math.floor(Math.random() * 40);
-    
-    // SpO2 95-100%
     const spo2 = 95 + Math.floor(Math.random() * 6);
-    
-    // Steps accumulating
     const steps = 1500 + Math.floor(Math.random() * 500);
-    
-    // Temp 36-38C
     const temperature = 36 + Math.random() * 2;
-    
-    // Fall detection (very rare mock)
-    const isFallen = Math.random() > 0.98; // 2% chance for demo purposes of alert state
 
     return {
       id: 1,
@@ -40,18 +56,19 @@ export class MemStorage implements IStorage {
       batteryLevel: 85 - Math.floor(Math.random() * 5),
       wifiConnected: Math.random() > 0.1,
       bluetoothConnected: Math.random() > 0.1,
+      accelX: Number(accelX.toFixed(3)),
+      accelY: Number(accelY.toFixed(3)),
+      accelZ: Number(accelZ.toFixed(3)),
       timestamp: now,
     };
   }
 
   async getLatestReading(): Promise<DeviceReading> {
-    // Regenerate on every fetch to simulate live updates
     this.currentReading = this.generateMockReading();
     return this.currentReading;
   }
 
   async getHistory(): Promise<{ time: string; heartRate: number }[]> {
-    // Generate 24h mock history
     const history = [];
     const now = new Date();
     for (let i = 24; i >= 0; i--) {
